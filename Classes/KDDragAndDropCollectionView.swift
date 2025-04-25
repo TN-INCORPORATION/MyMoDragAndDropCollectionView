@@ -25,11 +25,11 @@
 import UIKit
 
 public protocol KDDragAndDropCollectionViewDelegate: UICollectionViewDelegate {
-    func didDropItem() -> Void
+    func didDropItem(cell: UICollectionViewCell) -> Void
 }
 
 extension KDDragAndDropCollectionViewDelegate {
-    func didDropItem() -> Void {
+    func didDropItem(cell: UICollectionViewCell) -> Void {
         
     }
 }
@@ -149,15 +149,14 @@ open class KDDragAndDropCollectionView: UICollectionView, KDDraggable, KDDroppab
         if let idx = self.draggingPathOfCellBeingDragged {
             if let cell = self.cellForItem(at: idx) {
                 cell.isHidden = false
+                guard let dragDropDelegate = self.delegate as? KDDragAndDropCollectionViewDelegate else { return }
+                dragDropDelegate.didDropItem(cell: cell)
             }
         }
         
         self.draggingPathOfCellBeingDragged = nil
         
         self.reloadData()
-        
-        guard let dragDropDelegate = self.delegate as? KDDragAndDropCollectionViewDelegate else { return }
-        dragDropDelegate.didDropItem()
     }
     
     public func dragDataItem(_ item : AnyObject) -> Void {
