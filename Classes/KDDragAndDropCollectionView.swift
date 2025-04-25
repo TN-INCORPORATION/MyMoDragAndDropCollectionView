@@ -156,6 +156,8 @@ open class KDDragAndDropCollectionView: UICollectionView, KDDraggable, KDDroppab
         
         self.reloadData()
         
+        guard let dragDropDelegate = self.delegate as? KDDragAndDropCollectionViewDelegate else { return }
+        dragDropDelegate.didDropItem()
     }
     
     public func dragDataItem(_ item : AnyObject) -> Void {
@@ -435,13 +437,7 @@ open class KDDragAndDropCollectionView: UICollectionView, KDDraggable, KDDroppab
         currentInRect = nil
         
         self.draggingPathOfCellBeingDragged = nil
-        
         self.reloadData()
-        
-        guard let dragDropDelegate = self.delegate as? KDDragAndDropCollectionViewDelegate else {
-            return
-        }
-        dragDropDelegate.didDropItem()
     }
     public func removeItem() {
            guard let dragDropDataSource = self.dataSource as? KDDragAndDropCollectionViewDataSource else {
