@@ -24,6 +24,16 @@
 
 import UIKit
 
+public protocol KDDragAndDropCollectionViewDelegate: UICollectionViewDelegate {
+    func didDropItem() -> Void
+}
+
+extension KDDragAndDropCollectionViewDelegate {
+    func didDropItem() -> Void {
+        
+    }
+}
+
 public protocol KDDragAndDropCollectionViewDataSource : UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, indexPathForDataItem dataItem: AnyObject) -> IndexPath?
@@ -37,7 +47,7 @@ public protocol KDDragAndDropCollectionViewDataSource : UICollectionViewDataSour
     /* optional */ func collectionView(_ collectionView: UICollectionView, cellIsDroppableAtIndexPath indexPath: IndexPath) -> Bool
     
     /* optional */ func collectionView(_ collectionView: UICollectionView, stylingRepresentationView: UIView) -> UIView?
-     func checkLimitItem() -> Void
+    func checkLimitItem() -> Void
 }
 
 extension KDDragAndDropCollectionViewDataSource {
@@ -428,6 +438,10 @@ open class KDDragAndDropCollectionView: UICollectionView, KDDraggable, KDDroppab
         
         self.reloadData()
         
+        guard let dragDropDelegate = self.delegate as? KDDragAndDropCollectionViewDelegate else {
+            return
+        }
+        dragDropDelegate.didDropItem()
     }
     public func removeItem() {
            guard let dragDropDataSource = self.dataSource as? KDDragAndDropCollectionViewDataSource else {

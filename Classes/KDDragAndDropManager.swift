@@ -1,7 +1,3 @@
-// MARK: - KDDragAndDropManagerDelegate
-public protocol KDDragAndDropManagerDelegate: AnyObject {
-    func didDropItem(_ item: AnyObject, in droppableView: UIView, at rect: CGRect)
-}
 /*
  * KDDragAndDropManager.swift
  * Created by Michael Michailidis on 10/04/2015.
@@ -59,8 +55,6 @@ public class KDDragAndDropManager: NSObject, UIGestureRecognizerDelegate {
     fileprivate var canvas : UIView = UIView()
     fileprivate var views : [UIView] = []
     fileprivate var longPressGestureRecogniser = UILongPressGestureRecognizer()
-
-    public weak var delegate: KDDragAndDropManagerDelegate?
     
     
     struct Bundle {
@@ -214,15 +208,18 @@ public class KDDragAndDropManager: NSObject, UIGestureRecognizerDelegate {
         case .ended :
             self.vibrateTicker()
             if bundle.sourceDraggableView != bundle.overDroppableView { // if we are actually dropping over a new view.
+                
                 if let droppable = bundle.overDroppableView as? KDDroppable {
+                    
                     sourceDraggable.dragDataItem(bundle.dataItem)
+                    
                     let rect = self.canvas.convert(bundle.representationImageView.frame, to: bundle.overDroppableView)
                     droppable.removeItem()
                     droppable.dropDataItem(bundle.dataItem, atRect: rect)
-                    // แจ้ง delegate
-                    self.delegate?.didDropItem(bundle.dataItem, in: bundle.overDroppableView!, at: rect)
+                    
                 }
             }
+            
             bundle.representationImageView.removeFromSuperview()
             sourceDraggable.stopDragging()
             
