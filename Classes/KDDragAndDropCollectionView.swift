@@ -241,40 +241,42 @@ open class KDDragAndDropCollectionView: UICollectionView, KDDraggable, KDDroppab
     
     fileprivate var currentInRect : CGRect?
     public func willMoveItem(_ item : AnyObject, inRect rect : CGRect) -> Void {
-        let dragDropDataSource = self.dataSource as! KDDragAndDropCollectionViewDataSource
-
-        // Prevent double-insert: If item already in data source, skip
-        guard dragDropDataSource.collectionView(self, indexPathForDataItem: item) == nil else {
+        
+        let dragDropDataSource = self.dataSource as! KDDragAndDropCollectionViewDataSource // its guaranteed to have a data source
+        
+        if let _ = dragDropDataSource.collectionView(self, indexPathForDataItem: item) { // if data item exists
             return
         }
-
-        guard let indexPath = self.indexPathForCellOverlappingRect(rect) else {
-            return
+        
+        if let indexPath = self.indexPathForCellOverlappingRect(rect) {
+            
+            dragDropDataSource.collectionView(self, insertDataItem: item, atIndexPath: indexPath)
+            
+            self.draggingPathOfCellBeingDragged = indexPath
+            
+            self.animating = true
+            
+            self.performBatchUpdates({ () -> Void in
+                
+                self.insertItems(at: [indexPath])
+                
+            }, completion: { complete -> Void in
+                
+                self.animating = false
+                
+                // if in the meantime we have let go
+                if self.draggingPathOfCellBeingDragged == nil {
+                    
+                    self.reloadData()
+                }
+                
+                
+            })
+            
         }
-
-        // Validate bounds to avoid invalid insert
-        let currentItemCount = self.numberOfItems(inSection: indexPath.section)
-        guard indexPath.item <= currentItemCount else {
-            return
-        }
-
-        // Insert into data source before updating UI
-        dragDropDataSource.collectionView(self, insertDataItem: item, atIndexPath: indexPath)
-
-        // Track insertion for rendering
-        self.draggingPathOfCellBeingDragged = indexPath
-        self.animating = true
-
-        self.performBatchUpdates({
-            self.insertItems(at: [indexPath])
-        }, completion: { complete in
-            self.animating = false
-            if self.draggingPathOfCellBeingDragged == nil {
-                self.reloadData()
-            }
-        })
-
+        
         currentInRect = rect
+        
     }
     
     public var isHorizontal : Bool {
